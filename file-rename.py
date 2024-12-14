@@ -3,6 +3,7 @@ import re
 import logging
 from PIL import Image, ImageEnhance
 import pytesseract
+import shutil  # To move skipped files
 
 # Configure logging
 log_file = "image_processing.log"
@@ -18,7 +19,9 @@ datetime_pattern = r"\b(\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|
 # Define the folder containing the images
 input_folder = "/Users/chan/Library/CloudStorage/OneDrive-KBTC/Corporate Affair/CEO Office/KBTC_Global/KBTC_Global_Thailand/Finance - Budgeting/Bank statements/BBL screenshot"
 output_folder = "/Users/chan/Library/CloudStorage/OneDrive-KBTC/Corporate Affair/CEO Office/KBTC_Global/KBTC_Global_Thailand/Finance - Budgeting/Bank statements/receipts"
+skipped_folder = "/Users/chan/Library/CloudStorage/OneDrive-KBTC/Corporate Affair/CEO Office/KBTC_Global/KBTC_Global_Thailand/Finance - Budgeting/Bank statements/skipped_files"
 os.makedirs(output_folder, exist_ok=True)
+os.makedirs(skipped_folder, exist_ok=True)
 
 def preprocess_image(image_path):
     """
@@ -84,11 +87,17 @@ for filename in os.listdir(input_folder):
                 logging.info(f"Renamed {filename} to {new_filename}")
                 print(f"Renamed {filename} to {new_filename}")
             else:
-                logging.warning(f"No date and time found in {filename}, skipping.")
-                print(f"No date and time found in {filename}, skipping.")
+                # Move skipped files to the skipped folder
+                skipped_path = os.path.join(skipped_folder, filename)
+                shutil.move(image_path, skipped_path)
+                logging.warning(f"No date and time found in {filename}, moved to skipped_files.")
+                print(f"No date and time found in {filename}, moved to skipped_files.")
         
         except Exception as e:
-            logging.error(f"Error processing {filename}: {str(e)}")
-            print(f"Error processing {filename}: {str(e)}")
+            # Move files with errors to the skipped folder
+            skipped_path = os.path.join(skipped_folder, filename)
+            shutil.move(image_path, skipped_path)
+            logging.error(f"Error processing {filename}: {str(e)}. Moved to skipped_files.")
+            print(f"Error processing {filename}: {str(e)}. Moved to skipped_files.")
 
 print(f"Processing complete. Check {log_file} for details.")
