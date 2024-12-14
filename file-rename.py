@@ -59,6 +59,7 @@ def extract_date_and_time(image_path):
     print(f"OCR Output for {image_path}:\n{ocr_output}\n")
     
     # Refine regex to handle different date/time formats
+    datetime_pattern = r"(\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{2})[^\d]*(\d{1,2}:\d{2})"
     match = re.search(datetime_pattern, ocr_output)
     
     if match:
