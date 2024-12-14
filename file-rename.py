@@ -14,7 +14,7 @@ logging.basicConfig(
 )
 
 # Define the date and time regex pattern
-datetime_pattern = r"\b(\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{2}),\s(\d{1,2}:\d{2})\b"
+datetime_pattern = r"\b(\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{2})[,:\s]*(\d{1,2}:\d{2})\b"
 
 # Define the folder containing the images
 input_folder = "/Users/chan/Library/CloudStorage/OneDrive-KBTC/Corporate Affair/CEO Office/KBTC_Global/KBTC_Global_Thailand/Finance - Budgeting/Bank statements/BBL screenshot"
@@ -58,13 +58,16 @@ def extract_date_and_time(image_path):
     # Debug: Print OCR output (optional)
     print(f"OCR Output for {image_path}:\n{ocr_output}\n")
     
-    # Search for date and time in OCR output
+    # Refine regex to handle different date/time formats
     match = re.search(datetime_pattern, ocr_output)
+    
     if match:
         date = match.group(1).replace(" ", "-")  # Format date (e.g., 07-Sep-24)
         time = match.group(2).replace(":", "-")  # Format time (e.g., 15-12)
         return f"{date}_{time}"
     else:
+        # Log the entire OCR output for skipped files
+        logging.warning(f"No date and time found in {image_path}. OCR output: {ocr_output}")
         return None
 
 # Process each image in the input folder
